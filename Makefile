@@ -92,10 +92,10 @@ debug-run:
 
 .PHONY: debug-attach
 debug-attach:
-> gdb -ex 'file target/x64/$(build_mode)/kani' -ex 'target remote localhost:12345'
+> gdb -ex 'file target/x86_64-kani2-kernel/$(build_mode)/kani2_kernel.elf' -ex 'target remote localhost:12345'
 
 .PHONY: all
-all: build-kernel build-iso run
+all: build-kernel build-loader run
 
 .PHONY: clean
 clean:
