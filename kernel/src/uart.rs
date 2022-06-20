@@ -41,21 +41,32 @@ impl Uart {
         });
     }
 
+    #[cfg(not(feature = "qemu"))]
     pub unsafe fn write(&self, c: u8) {
         while PortReadOnly::<u16>::new(self.com + 5).read() & 0x20 != 0x20 {
-            x86_64::instructions::nop();
-            // x86_64::instructions::hlt();
+            x86_64::instructions::hlt();
         }
         PortWriteOnly::<u8>::new(self.com).write(c);
     }
 
-    // pub unsafe fn read(&self) -> u8 {
-    //     while PortReadOnly::<u16>::new(self.com + 5).read() & 1 != 1 {
-    //         x86_64::instructions::hlt();
-    //     }
+    #[cfg(feature = "qemu")]
+    pub unsafe fn write(&self, c: u8) {
+        PortWriteOnly::<u8>::new(self.com).write(c);
+    }
 
-    //     PortReadOnly::<u16>::new(self.com).read() as u8
-    // }
+    #[cfg(not(feature = "qemu"))]
+    pub unsafe fn read(&self) -> u8 {
+        while PortReadOnly::<u16>::new(self.com + 5).read() & 1 != 1 {
+            x86_64::instructions::hlt();
+        }
+
+        PortReadOnly::<u16>::new(self.com).read() as u8
+    }
+
+    #[cfg(feature = "qemu")]
+    pub unsafe fn read(&self) -> u8 {
+        PortReadOnly::<u16>::new(self.com).read() as u8
+    }
 }
 
 impl Write for Uart {
