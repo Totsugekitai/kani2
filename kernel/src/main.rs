@@ -15,17 +15,15 @@ use core::panic::PanicInfo;
 pub extern "sysv64" fn kernel_main() -> ! {
     allocator::init();
     uart::init();
-    println!("hello kani2 kernel hoge hoge");
-    println!("hello kani2 kernel fuga fuga");
-    println!("hello kani2 kernel foo foo");
-    println!("hello kani2 kernel bar bar");
+    println!("[info]hello kani2 kernel");
     loop {
         x86_64::instructions::hlt();
     }
 }
 
 #[panic_handler]
-fn panic(_: &PanicInfo) -> ! {
+fn panic(info: &PanicInfo) -> ! {
+    println!("{:?}", info);
     loop {
         x86_64::instructions::hlt();
     }
