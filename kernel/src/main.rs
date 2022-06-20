@@ -12,10 +12,13 @@ use core::panic::PanicInfo;
 
 #[link_section = ".text.main"]
 #[no_mangle]
-pub extern "sysv64" fn kernel_main() {
+pub extern "sysv64" fn kernel_main() -> ! {
     allocator::init();
     uart::init();
-    println!("hello kani2 kernel");
+    println!("hello kani2 kernel hoge hoge");
+    println!("hello kani2 kernel fuga fuga");
+    println!("hello kani2 kernel foo foo");
+    println!("hello kani2 kernel bar bar");
     loop {
         x86_64::instructions::hlt();
     }

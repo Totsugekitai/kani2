@@ -26,7 +26,7 @@ impl Uart {
             // 16550A UART Enable
             PortWriteOnly::<u8>::new(self.com + 1).write(0); // disable all interrupts
             PortWriteOnly::<u8>::new(self.com + 3).write(0x80); // DLAB set 1
-            PortWriteOnly::<u8>::new(self.com + 0).write(1); // 115200 / 115200
+            PortWriteOnly::<u8>::new(self.com).write(1); // 115200 / 115200
             PortWriteOnly::<u8>::new(self.com + 1).write(0); // baud rate hi bytes
             PortWriteOnly::<u8>::new(self.com + 3).write(0x03); // DLAB set 0
             PortWriteOnly::<u8>::new(self.com + 4).write(0x0b); // IRQ enable
@@ -37,24 +37,25 @@ impl Uart {
             }
 
             PortReadOnly::<u16>::new(self.com + 2).read();
-            PortReadOnly::<u16>::new(self.com + 0).read();
+            PortReadOnly::<u16>::new(self.com).read();
         });
     }
 
     pub unsafe fn write(&self, c: u8) {
         while PortReadOnly::<u16>::new(self.com + 5).read() & 0x20 != 0x20 {
-            x86_64::instructions::hlt();
+            x86_64::instructions::nop();
+            // x86_64::instructions::hlt();
         }
-        PortWriteOnly::<u8>::new(self.com + 0).write(c);
+        PortWriteOnly::<u8>::new(self.com).write(c);
     }
 
-    pub unsafe fn read(&self) -> u8 {
-        while PortReadOnly::<u16>::new(self.com + 5).read() & 1 != 1 {
-            x86_64::instructions::hlt();
-        }
+    // pub unsafe fn read(&self) -> u8 {
+    //     while PortReadOnly::<u16>::new(self.com + 5).read() & 1 != 1 {
+    //         x86_64::instructions::hlt();
+    //     }
 
-        PortReadOnly::<u16>::new(self.com).read() as u8
-    }
+    //     PortReadOnly::<u16>::new(self.com).read() as u8
+    // }
 }
 
 impl Write for Uart {

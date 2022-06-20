@@ -1,2 +1,4 @@
 target/
 kani2.map
+ovmf/
+image/
