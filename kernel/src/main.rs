@@ -6,6 +6,7 @@ extern crate alloc;
 
 mod allocator;
 mod println;
+mod task;
 mod uart;
 
 use core::panic::PanicInfo;
