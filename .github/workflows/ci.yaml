@@ -1,0 +1,45 @@
+name: kani2-ci
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      RUSTC_FORCE_INCREMENTAL: 1
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/cache_cargo
+      - run: |
+          rustup install nightly
+          rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
+      - name: build kani2
+        run: make build
+  fmt:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - run: rustup component add rustfmt
+      - uses: ./.github/actions/cache_cargo
+      - name: fmt
+        run: |
+          rustup install nightly
+          rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
+          rustup component add rustfmt --toolchain nightly-x86_64-unknown-linux-gnu
+          make fmt
+  clippy:
+    runs-on: ubuntu-latest
+    env:
+      RUSTC_FORCE_INCREMENTAL: 1
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - run: rustup component add clippy
+      - uses: ./.github/actions/cache_cargo
+      - name: clippy
+        run: |
+          rustup install nightly
+          rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
+          rustup component add clippy --toolchain nightly-x86_64-unknown-linux-gnu
+          make clippy
