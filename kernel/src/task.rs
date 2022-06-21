@@ -1,5 +1,5 @@
 use spin::Mutex;
-use x86_64::{registers::control::Cr3Flags, structures::paging::frame::PhysFrame};
+use x86_64::{registers::control::Cr3Flags, structures::paging::frame::PhysFrame, PhysAddr};
 
 /// タスクが今どのような状態なのかを表す
 #[derive(Debug, Clone, Copy)]
@@ -54,7 +54,7 @@ impl Task {
             tid: Tid::new(),
             status: TaskStatus::Init,
             regs: Registers::new(),
-            p4_table_address: PhysFrame::from_start_address(0),
+            p4_table_address: PhysFrame::from_start_address(PhysAddr::new(0)).unwrap(),
             cr3_flags: Cr3Flags::empty(),
         }
     }
