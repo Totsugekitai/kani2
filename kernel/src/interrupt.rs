@@ -19,7 +19,7 @@ lazy_static! {
 }
 
 pub fn init() {
-    IDT.load()
+    IDT.load();
 }
 
 extern "x86-interrupt" fn breakpoint_handler(stack_frame: InterruptStackFrame) {
