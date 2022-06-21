@@ -17,34 +17,17 @@ features :=
 qemu :=
 
 ifeq ($(QEMU),1)
-features += qemu
+features +=qemu
 qemu =-qemu
 endif
 
-# ifeq ($(LOG),error)
-# features += log_error
-# else ifeq ($(LOG),warn)
-# features += log_warn
-# else ifeq ($(LOG),debug)
-# features += log_debug
-# else ifeq ($(LOG),info)
-# features += log_info
-# else ifeq ($(LOG),trace)
-# features += log_trace
-# else
-# features += log_info
-# endif
-
 export RUSTFLAGS = -Z emit-stack-sizes
 CARGO ?= cargo +nightly
-# CARGOFLAGS += -Z build-std=core,alloc -Z build-std-features=compiler-builtins-mem
-# CARGOFLAGS += --target $(target_json)
-CARGOFLAGS += --features "$(features)"
 CARGOFLAGS += $(if $(RELEASE),--release,)
 
 .PHONY: build-kernel
 build-kernel:
-> cd kernel; $(CARGO) build $(CARGOFLAGS)
+> cd kernel; $(CARGO) build $(CARGOFLAGS) --features "$(features)"
 
 .PHONY: build-loader
 build-loader:
