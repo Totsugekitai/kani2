@@ -7,12 +7,9 @@ MAKEFLAGS += --no-builtin-rules --no-builtin-variables
 
 export RELEASE ?=
 export QEMU ?=
-export QEMU_SYSTEM ?= qemu-system-x86_64
-export LOG ?= info
-export ARCH ?= x64
+export QEMU_SYSTEM ?=qemu-system-x86_64
 
-target_json := kernel/arch/$(ARCH)/$(ARCH).json
-build_mode := $(if $(RELEASE),release,debug)
+build_mode :=$(if $(RELEASE),release,debug)
 features :=
 qemu :=
 
@@ -38,17 +35,13 @@ build: build-kernel build-loader
 
 .PHONY: fmt
 fmt:
-> pushd kernel
-> $(CARGO) fmt --all -- --check
-> popd; cd loader
-> $(CARGO) fmt --all -- --check
+> (cd kernel; $(CARGO) fmt --all -- --check)
+> (cd loader; $(CARGO) fmt --all -- --check)
 
 .PHONY: clippy
 clippy:
-> pushd kernel
-> $(CARGO) clippy $(CARGOFLAGS) -- -D warnings
-> popd; cd loader
-> $(CARGO) clippy $(CARGOFLAGS) -- -D warnings
+> (cd kernel; $(CARGO) clippy $(CARGOFLAGS) -- -D warnings)
+> (cd loader; $(CARGO) clippy $(CARGOFLAGS) -- -D warnings)
 
 .PHONY: test
 test:
@@ -78,9 +71,9 @@ debug-attach:
 > gdb -ex 'file target/x86_64-kani2-kernel/$(build_mode)/kani2_kernel.elf' -ex 'target remote localhost:12345'
 
 .PHONY: all
-all: build-kernel build-loader run
+all: build run
 
 .PHONY: clean
 clean:
 > cargo clean
-> rm -rf build kani2.map
+> rm -rf kani2.map
