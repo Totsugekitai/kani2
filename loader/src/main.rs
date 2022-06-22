@@ -5,12 +5,13 @@
 #[macro_use]
 extern crate alloc;
 
+use alloc::vec::Vec;
 use goblin::elf::{self, ProgramHeaders};
 use uefi::{
     alloc::exit_boot_services,
     prelude::*,
     proto::{self, media::file::*},
-    table::boot::{AllocateType, MemoryType},
+    table::boot::{AllocateType, MemoryDescriptor, MemoryType},
 };
 
 const EFI_PAGE_SIZE: usize = 0x1000;
@@ -122,6 +123,17 @@ fn efi_main(image_handle: Handle, mut system_table: SystemTable<Boot>) -> Status
     }
     serial.write(b"locate kernel image success\r\n").unwrap();
 
+    let memory_map = get_memory_map(boot_services);
+    if let Err(_) = memory_map {
+        serial.write(b"[ERROR]cannot get memory map\r\n").unwrap();
+        panic!();
+    }
+    for m in &memory_map.unwrap() {
+        serial
+            .write(format!("{:?}: {:x}, {}\r\n", m.ty, m.phys_start, m.page_count).as_bytes())
+            .unwrap();
+    }
+
     exit_boot_services();
 
     entry_point();
@@ -154,4 +166,15 @@ fn calc_alloc_region(phdrs: &ProgramHeaders) -> (usize, usize) {
         }
     }
     memo
+}
+
+fn get_memory_map(boot_services: &BootServices) -> Result<Vec<MemoryDescriptor>, ()> {
+    let mut buf: [u8; 1024 * 16] = [0; 1024 * 16];
+    let map = boot_services.memory_map(&mut buf);
+    if let Err(_) = map {
+        return Err(());
+    }
+    let iter = map.unwrap().1;
+    let v: Vec<MemoryDescriptor> = iter.copied().collect();
+    Ok(v)
 }
