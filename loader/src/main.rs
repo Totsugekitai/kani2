@@ -124,7 +124,7 @@ fn efi_main(image_handle: Handle, mut system_table: SystemTable<Boot>) -> Status
     serial.write(b"locate kernel image success\r\n").unwrap();
 
     let memory_map = get_memory_map(boot_services);
-    if let Err(_) = memory_map {
+    if memory_map.is_err() {
         serial.write(b"[ERROR]cannot get memory map\r\n").unwrap();
         panic!();
     }
@@ -171,7 +171,7 @@ fn calc_alloc_region(phdrs: &ProgramHeaders) -> (usize, usize) {
 fn get_memory_map(boot_services: &BootServices) -> Result<Vec<MemoryDescriptor>, ()> {
     let mut buf: [u8; 1024 * 16] = [0; 1024 * 16];
     let map = boot_services.memory_map(&mut buf);
-    if let Err(_) = map {
+    if map.is_err() {
         return Err(());
     }
     let iter = map.unwrap().1;
