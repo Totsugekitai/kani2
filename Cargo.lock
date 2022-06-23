@@ -32,9 +32,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "kani2_common"
+version = "0.1.0"
+dependencies = [
+ "uefi",
+]
+
+[[package]]
 name = "kani2_kernel"
 version = "0.1.0"
 dependencies = [
+ "kani2_common",
  "lazy_static",
  "linked_list_allocator",
  "spin 0.9.3",
@@ -46,6 +54,7 @@ name = "kani2_loader"
 version = "0.1.0"
 dependencies = [
  "goblin",
+ "kani2_common",
  "uefi",
  "uefi-services",
 ]

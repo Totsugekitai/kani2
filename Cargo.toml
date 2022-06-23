@@ -1,5 +1,2 @@
 [workspace]
-members = [
-    "loader",
-    "kernel",
-]
+members = ["loader", "kernel", "common"]
