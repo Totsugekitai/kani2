@@ -13,3 +13,5 @@ goblin = { version = "0.5.2", default-features = false, features = [
   "endian_fd",
   "elf32",
 ] }
+
+kani2_common = { path = "../common" }
