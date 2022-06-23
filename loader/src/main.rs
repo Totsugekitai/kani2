@@ -7,6 +7,7 @@ extern crate alloc;
 
 use alloc::vec::Vec;
 use goblin::elf::{self, ProgramHeaders};
+use kani2_common::boot::{BootInfo, MemoryMap};
 use uefi::{
     alloc::exit_boot_services,
     prelude::*,
@@ -67,7 +68,8 @@ fn efi_main(image_handle: Handle, mut system_table: SystemTable<Boot>) -> Status
 
     // parse elf file
     let kernel_elf = elf::Elf::parse(&buf).unwrap();
-    let entry_point: extern "sysv64" fn() = unsafe { core::mem::transmute(kernel_elf.entry) };
+    let entry_point: extern "sysv64" fn(&BootInfo) =
+        unsafe { core::mem::transmute(kernel_elf.entry) };
     serial
         .write(
             format!(
@@ -128,15 +130,14 @@ fn efi_main(image_handle: Handle, mut system_table: SystemTable<Boot>) -> Status
         serial.write(b"[ERROR]cannot get memory map\r\n").unwrap();
         panic!();
     }
-    for m in &memory_map.unwrap() {
-        serial
-            .write(format!("{:?}: {:x}, {}\r\n", m.ty, m.phys_start, m.page_count).as_bytes())
-            .unwrap();
-    }
+    let memory_map = memory_map.unwrap();
+    let mmap = MemoryMap::new(memory_map.as_ptr(), memory_map.len() as u64);
+    core::mem::forget(memory_map); // 忘れさせないとRustが開放してしまうかもしれない
+    let boot_info = BootInfo::new(mmap);
 
     exit_boot_services();
 
-    entry_point();
+    entry_point(&boot_info);
 
     Status::SUCCESS
 }

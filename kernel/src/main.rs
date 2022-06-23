@@ -13,13 +13,23 @@ mod task;
 mod uart;
 
 use core::panic::PanicInfo;
+use kani2_common::boot::BootInfo;
 
 #[link_section = ".text.main"]
 #[no_mangle]
-pub extern "sysv64" fn kernel_main() -> ! {
+pub extern "sysv64" fn kernel_main(boot_info: &BootInfo) -> ! {
     init();
     println!("[info]hello kani2 kernel");
     x86_64::instructions::interrupts::int3();
+    unsafe {
+        for m in boot_info.mmap().into_iter() {
+            let m = m.as_ref().unwrap();
+            println!(
+                "{:?}: 0x{:016x} - {} page",
+                m.ty, m.phys_start, m.page_count
+            );
+        }
+    }
     loop {
         x86_64::instructions::hlt();
     }
