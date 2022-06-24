@@ -12,13 +12,27 @@ mod println;
 mod task;
 mod uart;
 
-use core::panic::PanicInfo;
+use core::{arch::asm, panic::PanicInfo};
 use kani2_common::boot::BootInfo;
+
+extern "C" {
+    static mut __kernel_stack: u8;
+}
 
 #[link_section = ".text.main"]
 #[no_mangle]
 pub extern "sysv64" fn kernel_main(boot_info: &BootInfo) -> ! {
+    // スタックポインタをカーネルのものにする
+    unsafe {
+        asm!(
+            "mov rsp, {stack_bottom}",
+            stack_bottom = in(reg) &__kernel_stack as *const u8 as usize,
+        );
+    }
+
+    // 初期化
     init();
+
     println!("[info]hello kani2 kernel");
     x86_64::instructions::interrupts::int3();
     unsafe {
@@ -30,6 +44,7 @@ pub extern "sysv64" fn kernel_main(boot_info: &BootInfo) -> ! {
             );
         }
     }
+
     loop {
         x86_64::instructions::hlt();
     }
