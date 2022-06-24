@@ -6,6 +6,7 @@
 extern crate alloc;
 
 mod allocator;
+mod gdt;
 mod interrupt;
 mod ioapic;
 mod println;
@@ -13,7 +14,7 @@ mod task;
 mod uart;
 
 use core::{arch::asm, panic::PanicInfo};
-use kani2_common::boot::BootInfo;
+use kani2_common::boot::{BootInfo, MemoryMap};
 
 extern "C" {
     static mut __kernel_stack: u8;
@@ -21,7 +22,7 @@ extern "C" {
 
 #[link_section = ".text.main"]
 #[no_mangle]
-pub extern "sysv64" fn kernel_main(boot_info: &BootInfo) -> ! {
+pub extern "sysv64" fn kernel_main(boot_info: &'static BootInfo) -> ! {
     // スタックポインタをカーネルのものにする
     unsafe {
         asm!(
@@ -34,7 +35,7 @@ pub extern "sysv64" fn kernel_main(boot_info: &BootInfo) -> ! {
     init();
 
     println!("[info]hello kani2 kernel");
-    x86_64::instructions::interrupts::int3();
+
     unsafe {
         for m in boot_info.mmap().into_iter() {
             let m = m.as_ref().unwrap();
@@ -65,6 +66,7 @@ fn alloc_error_handler(layout: alloc::alloc::Layout) -> ! {
 
 fn init() {
     allocator::init();
-    uart::init();
+    gdt::init();
     interrupt::init();
+    uart::init();
 }
