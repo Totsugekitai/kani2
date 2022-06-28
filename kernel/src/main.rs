@@ -9,6 +9,7 @@ mod allocator;
 mod gdt;
 mod interrupt;
 mod ioapic;
+mod memory;
 mod println;
 mod task;
 mod uart;
@@ -69,4 +70,5 @@ fn init() {
     gdt::init();
     interrupt::init();
     uart::init();
+    memory::init();
 }
