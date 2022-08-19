@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 uefi = { version = "0.16.0", features = ["alloc", "exts"] }
 uefi-services = "0.13.0"
-goblin = { version = "0.5.3", default-features = false, features = [
+goblin = { version = "0.5.4", default-features = false, features = [
   "elf64",
   "endian_fd",
   "elf32",
