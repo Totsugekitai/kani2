@@ -8,7 +8,7 @@ jobs:
     env:
       RUSTC_FORCE_INCREMENTAL: 1
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/cache_cargo
       - run: |
           rustup install nightly
@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: rustup component add rustfmt
       - uses: ./.github/actions/cache_cargo
       - name: fmt
