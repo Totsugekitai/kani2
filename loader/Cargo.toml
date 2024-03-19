@@ -6,9 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-uefi = { version = "0.16.0", features = ["alloc", "exts"] }
-uefi-services = "0.13.0"
-goblin = { version = "0.5.4", default-features = false, features = [
+uefi = { version = "0.27.0", features = ["alloc", "exts"] }
+uefi-services = "0.24.0"
+goblin = { version = "0.8.0", default-features = false, features = [
   "elf64",
   "endian_fd",
   "elf32",
